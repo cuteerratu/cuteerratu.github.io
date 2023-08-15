@@ -23,41 +23,54 @@ button:hover { background-color: #0277bd; }
 <label for="prompt">请输入：</label>
 <input type="text" id="prompt" />
 <button onclick="sendMessage()">提交</button>
+<button onclick="openSettings()">设置</button>
+</div>
+</div>
+<div id="settings-modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeSettings()">&times;</span>
+<h2>设置</h2>
+<label for="apiUrl">API网站：</label>
+<input type="text" id="apiUrl" value="https://ai.fakeopen.com/v1/chat/completions"><br>
+<label for="apiKey">API密钥：</label>
+<input type="text" id="apiKey" value="fk-nIYObrFcFoMgZOodN7OGlV7YFjQccLSEvYj9M_JT1e4"><br>
+<label for="defaultModel">默认模型：</label>
+<input type="text" id="defaultModel" value="gpt-3.5-turbo"><br>
+<button onclick="saveSettings()">保存</button>
 </div>
 </div>
 <script>
 var conversation = [
 { 'role': 'system', 'content': 'You are a helpful assistant.' }
 ];
+var apiUrl = 'https://ai.fakeopen.com/v1/chat/completions';
+var apiKey = 'fk-nIYObrFcFoMgZOodN7OGlV7YFjQccLSEvYj9M_JT1e4';
+var defaultModel = 'gpt-3.5-turbo';
 
 function sendMessage() {
 var inputBox = document.getElementById('prompt');
 var userMessage = inputBox.value.trim();
-if (!userMessage) return; // 如果输入为空则不发送消息
+if (!userMessage) return;
 
-// 立即显示用户的消息气泡
 conversation.push({ 'role': 'user', 'content': userMessage });
 updateChatHistory();
 
-// 清空输入框
 inputBox.value = '';
 
-// 发送API请求
-fetch('https://ai.fakeopen.com/v1/chat/completions', {
+fetch(apiUrl, {
 method: 'POST',
 headers: {
-'Authorization': 'Bearer fk-nIYObrFcFoMgZOodN7OGlV7YFjQccLSEvYj9M_JT1e4',
+'Authorization': 'Bearer ' + apiKey,
 'Content-Type': 'application/json'
 },
 body: JSON.stringify({
-'model': 'gpt-3.5-turbo',
+'model': defaultModel,
 'messages': conversation
 })
 })
 .then(response => response.json())
 .then(data => {
 var response_text = data.choices[0].message.content;
-// API请求成功后再显示Assistant的消息气泡
 conversation.push({ 'role': 'assistant', 'content': response_text });
 updateChatHistory();
 })
@@ -75,6 +88,26 @@ messageDiv.className = message.role === 'user' ? 'chat-bubble user-bubble' : 'ch
 messageDiv.innerText = message.role + ': ' + message.content;
 chatHistoryDiv.appendChild(messageDiv);
 }
+}
+
+var modal = document.getElementById('settings-modal');
+
+function openSettings() {
+modal.style.display = 'block';
+document.getElementById('apiUrl').value = apiUrl;
+document.getElementById('apiKey').value = apiKey;
+document.getElementById('defaultModel').value = defaultModel;
+}
+
+function closeSettings() {
+modal.style.display = 'none';
+}
+
+function saveSettings() {
+apiUrl = document.getElementById('apiUrl').value;
+apiKey = document.getElementById('apiKey').value;
+defaultModel = document.getElementById('defaultModel').value;
+closeSettings();
 }
 </script>
 </body>
