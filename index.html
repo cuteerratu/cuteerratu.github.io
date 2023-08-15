@@ -28,6 +28,7 @@ button:hover { background-color: #0277bd; }
 <input type="text" id="prompt" />
 <button onclick="sendMessage()">提交</button>
 <button onclick="openSettings()">设置</button>
+<button onclick="openDrawingPage()">AI绘画</button>
 </div>
 </div>
 <div id="settings-modal" class="modal">
@@ -41,6 +42,16 @@ button:hover { background-color: #0277bd; }
 <label for="defaultModel">默认模型：</label>
 <input type="text" id="defaultModel" value="gpt-3.5-turbo"><br>
 <button onclick="saveSettings()">保存</button>
+</div>
+</div>
+<div id="drawing-modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeDrawingPage()">&times;</span>
+<h2>AI绘画</h2>
+<label for="drawingPrompt">输入提示词：</label>
+<input type="text" id="drawingPrompt" /><br>
+<button onclick="drawImage()">绘制</button>
+<div id="drawingResult"></div>
 </div>
 </div>
 <script>
@@ -95,6 +106,7 @@ chatHistoryDiv.appendChild(messageDiv);
 }
 
 var modal = document.getElementById('settings-modal');
+var drawingModal = document.getElementById('drawing-modal');
 
 function openSettings() {
 modal.style.display = 'block';
@@ -112,6 +124,20 @@ apiUrl = document.getElementById('apiUrl').value;
 apiKey = document.getElementById('apiKey').value;
 defaultModel = document.getElementById('defaultModel').value;
 closeSettings();
+}
+
+function openDrawingPage() {
+drawingModal.style.display = 'block';
+}
+
+function closeDrawingPage() {
+drawingModal.style.display = 'none';
+}
+
+function drawImage() {
+var drawingPrompt = document.getElementById('drawingPrompt').value;
+var drawingResult = document.getElementById('drawingResult');
+drawingResult.innerHTML = `<img src="https://image.pollinations.ai/prompt/${drawingPrompt}" alt="AI绘画" style="max-width: 100%;">`;
 }
 </script>
 </body>
