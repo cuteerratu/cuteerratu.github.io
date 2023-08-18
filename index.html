@@ -152,7 +152,63 @@ updateConversationList();
 <div class="modal-content">
 <span class="close" onclick="closeDrawingPage()">&times;</span>
 <h2>AI绘画</h2>
-<label for="drawingassistant', 'content': response_text });
+<label for="drawingPrompt">输入提示词：</label>
+<input type="text" id="drawingPrompt" /><br>
+<button onclick="drawImage()">绘制</button>
+<div id="drawingResult"></div>
+</div>
+</div>
+<div id="dialog-list-modal" class="dialog-list-modal">
+<div class="dialog-list-content">
+<span class="dialog-list-close" onclick="closeDialogList()">&times;</span>
+<h2>对话列表</h2>
+<ul class="dialog-list" id="dialog-list"></ul>
+<div class="dialog-actions">
+<input type="text" id="dialog-name" class="dialog-input" placeholder="对话名称">
+<button onclick="addDialog()">新增对话</button>
+</div>
+</div>
+</div>
+<script>
+var conversation = [
+{ 'role': 'system', 'content': 'You are a helpful assistant.' }
+];
+var dialogs = [];
+var currentDialogIndex = -1;
+var apiUrl = 'https://ai.fakeopen.com/v1/chat/completions';
+var apiKey = 'fk-nIYObrFcFoMgZOodN7OGlV7YFjQccLSEvYj9M_JT1e4';
+var defaultModel = 'gpt-3.5-turbo';
+
+function sendMessage() {
+var inputBox = document.getElementById('prompt');
+var userMessage = inputBox.value.trim();
+if (!userMessage) return;
+
+if (currentDialogIndex !== -1) {
+dialogs[currentDialogIndex].conversation.push({ 'role': 'user', 'content': userMessage });
+updateDialogList();
+}
+
+conversation.push({ 'role': 'user', 'content': userMessage });
+updateChatHistory();
+
+inputBox.value = '';
+
+fetch(apiUrl, {
+method: 'POST',
+headers: {
+'Authorization': 'Bearer ' + apiKey,
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({
+'model': defaultModel,
+'messages': conversation
+})
+})
+.then(response => response.json())
+.then(data => {
+var response_text = data.choices[0].message.content;
+conversation.push({ 'role': 'assistant', 'content': response_text });
 updateChatHistory();
 })
 .catch(error => console.error('Error:', error));
