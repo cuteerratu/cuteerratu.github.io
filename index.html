@@ -26,6 +26,100 @@ button:hover { background-color: #0277bd; }
 .selected { background-color: #f0f0f0; }
 .dialog-actions { display: flex; justify-content: space-between; margin-top: 16px; }
 .dialog-input { width: 60%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; margin-right: 8px; }
+/* 新增对话 */
+function addConversation() {
+  var conversationName = prompt('请输入对话名称:');
+  if (conversationName) {
+    // 创建一个新的对话对象
+    var newConversation = {
+      name: conversationName,
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant.' }
+      ]
+    };
+    conversations.push(newConversation);
+    updateConversationList();
+    switchConversation(conversations.length - 1); // 切换到新增的对话
+  }
+}
+
+/* 切换对话 */
+function switchConversation(index) {
+  currentConversationIndex = index;
+  var conversation = conversations[currentConversationIndex];
+  updateChatHistory(conversation.messages);
+  hideSettingsModal();
+}
+
+/* 重命名对话 */
+function renameConversation(index) {
+  var newName = prompt('请输入新的对话名称:');
+  if (newName) {
+    conversations[index].name = newName;
+    updateConversationList();
+  }
+}
+
+/* 删除对话 */
+function deleteConversation(index) {
+  var confirmDelete = confirm('确定要删除这个对话吗？');
+  if (confirmDelete) {
+    conversations.splice(index, 1);
+    updateConversationList();
+    if (currentConversationIndex === index) {
+      currentConversationIndex = -1;
+      clearChatHistory();
+    }
+  }
+}
+
+/* 更新对话列表 */
+function updateConversationList() {
+  var conversationList = document.getElementById('conversation-list');
+  conversationList.innerHTML = '';
+
+  for (var i = 0; i < conversations.length; i++) {
+    var conversation = conversations[i];
+    var listItem = document.createElement('li');
+    listItem.textContent = conversation.name;
+    
+    // 切换对话
+    listItem.addEventListener('click', (function(index) {
+      return function() {
+        switchConversation(index);
+      };
+    })(i));
+
+    // 重命名对话
+    var renameButton = document.createElement('button');
+    renameButton.textContent = '重命名';
+    renameButton.addEventListener('click', (function(index) {
+      return function(event) {
+        event.stopPropagation();
+        renameConversation(index);
+      };
+    })(i));
+
+    // 删除对话
+    var deleteButton = document.createElement('button');
+    deleteButton.textContent = '删除';
+    deleteButton.addEventListener('click', (function(index) {
+      return function(event) {
+        event.stopPropagation();
+        deleteConversation(index);
+      };
+    })(i));
+
+    listItem.appendChild(renameButton);
+    listItem.appendChild(deleteButton);
+
+    conversationList.appendChild(listItem);
+  }
+}
+
+/* 初始化对话列表 */
+updateConversationList();
+
 </style>
 </head>
 <body>
