@@ -26,6 +26,7 @@ button:hover { background-color: #0277bd; }
 .selected { background-color: #f0f0f0; }
 .dialog-actions { display: flex; justify-content: space-between; margin-top: 16px; }
 .dialog-input { width: 60%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; margin-right: 8px; }
+<button onclick="runCode()">运行代码</button>
 /* 新增对话 */
 function addConversation() {
   var conversationName = prompt('请输入对话名称:');
@@ -170,6 +171,9 @@ updateConversationList();
 </div>
 </div>
 <script>
+function runCode() {
+    window.open('https://cuteerratu.github.io/RunCode/', '_blank');
+}
 var conversation = [
 { 'role': 'system', 'content': 'You are a helpful assistant.' }
 ];
