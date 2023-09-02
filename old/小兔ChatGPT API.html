@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>小兔ChatGPT API</title>
+<style>
+body { font-family: Arial, sans-serif; }
+.chat-container { max-width: 600px; margin: 0 auto; border: 1px solid #ccc; border-radius: 8px; padding: 16px; }
+.chat-bubble { padding: 8px; border-radius: 8px; margin: 8px; max-width: 80%; word-wrap: break-word; }
+.user-bubble { background-color: #f0f0f0; align-self: flex-end; }
+.assistant-bubble { background-color: #e1f5fe; align-self: flex-start; }
+h1 { text-align: center; margin-bottom: 16px; color: #039be5; }
+label { font-weight: bold; }
+input[type="text"] { width: 80%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-right: 8px; }
+button { padding: 8px 16px; background-color: #039be5; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+button:hover { background-color: #0277bd; }
+.modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+.modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 50%; }
+.close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+.close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+.dialog-list-modal { display: none; position: fixed; z-index: 2; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+.dialog-list-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-height: 80%; overflow-y: auto; }
+.dialog-list-close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
+.dialog-list-close:hover, .dialog-list-close:focus { color: black; text-decoration: none; cursor: pointer; }
+.dialog-list { list-style-type: none; padding: 0; }
+.dialog-list-item { margin-bottom: 8px; cursor: pointer; }
+.selected { background-color: #f0f0f0; }
+.dialog-actions { display: flex; justify-content: space-between; margin-top: 16px; }
+.dialog-input { width: 60%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; margin-right: 8px; }
+/* 新增对话 */
+function addConversation() {
+  var conversationName = prompt('请输入对话名称:');
+  if (conversationName) {
+    // 创建一个新的对话对象
+    var newConversation = {
+      name: conversationName,
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant.' }
+      ]
+    };
+    conversations.push(newConversation);
+    updateConversationList();
+    switchConversation(conversations.length - 1); // 切换到新增的对话
+  }
+}
+
+/* 切换对话 */
+function switchConversation(index) {
+  currentConversationIndex = index;
+  var conversation = conversations[currentConversationIndex];
+  updateChatHistory(conversation.messages);
+  hideSettingsModal();
+}
+
+/* 重命名对话 */
+function renameConversation(index) {
+  var newName = prompt('请输入新的对话名称:');
+  if (newName) {
+    conversations[index].name = newName;
+    updateConversationList();
+  }
+}
+
+/* 删除对话 */
+function deleteConversation(index) {
+  var confirmDelete = confirm('确定要删除这个对话吗？');
+  if (confirmDelete) {
+    conversations.splice(index, 1);
+    updateConversationList();
+    if (currentConversationIndex === index) {
+      currentConversationIndex = -1;
+      clearChatHistory();
+    }
+  }
+}
+
+/* 更新对话列表 */
+function updateConversationList() {
+  var conversationList = document.getElementById('conversation-list');
+  conversationList.innerHTML = '';
+
+  for (var i = 0; i < conversations.length; i++) {
+    var conversation = conversations[i];
+    var listItem = document.createElement('li');
+    listItem.textContent = conversation.name;
+    
+    // 切换对话
+    listItem.addEventListener('click', (function(index) {
+      return function() {
+        switchConversation(index);
+      };
+    })(i));
+
+    // 重命名对话
+    var renameButton = document.createElement('button');
+    renameButton.textContent = '重命名';
+    renameButton.addEventListener('click', (function(index) {
+      return function(event) {
+        event.stopPropagation();
+        renameConversation(index);
+      };
+    })(i));
+
+    // 删除对话
+    var deleteButton = document.createElement('button');
+    deleteButton.textContent = '删除';
+    deleteButton.addEventListener('click', (function(index) {
+      return function(event) {
+        event.stopPropagation();
+        deleteConversation(index);
+      };
+    })(i));
+
+    listItem.appendChild(renameButton);
+    listItem.appendChild(deleteButton);
+
+    conversationList.appendChild(listItem);
+  }
+}
+
+/* 初始化对话列表 */
+updateConversationList();
+function runCode() {
+    window.open('https://cuteerratu.github.io/RunCode/', '_blank');
+}
+
+</style>
+</head>
+<body>
+<h1>小兔ChatGPT API</h1>
+<div class="chat-container">
+<div class="chat-history" id="chat-history"></div>
+<div>
+<label for="prompt">请输入：</label>
+<input type="text" id="prompt">
+<button onclick="sendMessage()">提交</button>
+<button onclick="openSettings()">设置</button>
+<button onclick="openDrawingPage()">AI绘画</button>
+<button onclick="openDialogList()">对话列表</button>
+<button onclick="runCode()">运行代码</button>
+</div>
+</div>
+<div id="settings-modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeSettings()">×</span>
+<h2>设置</h2>
+<label for="apiUrl">API网站：</label>
+<input type="text" id="apiUrl" value="https://ai.fakeopen.com/v1/chat/completions"><br>
+<label for="apiKey">API密钥：</label>
+<input type="text" id="apiKey" value="fk-nIYObrFcFoMgZOodN7OGlV7YFjQccLSEvYj9M_JT1e4"><br>
+<label for="defaultModel">默认模型：</label>
+<input type="text" id="defaultModel" value="gpt-3.5-turbo"><br>
+<button onclick="saveSettings()">保存</button>
+</div>
+</div>
+<div id="drawing-modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeDrawingPage()">×</span>
+<h2>AI绘画</h2>
+<label for="drawingPrompt">输入提示词：</label>
+<input type="text" id="drawingPrompt"><br>
+<button onclick="drawImage()">绘制</button>
+<div id="drawingResult"></div>
+</div>
+</div>
+<div id="dialog-list-modal" class="dialog-list-modal">
+<div class="dialog-list-content">
+<span class="dialog-list-close" onclick="closeDialogList()">×</span>
+<h2>对话列表</h2>
+<ul class="dialog-list" id="dialog-list"></ul>
+<div class="dialog-actions">
+<input type="text" id="dialog-name" class="dialog-input" placeholder="对话名称">
+<button onclick="addDialog()">新增对话</button>
+</div>
+</div>
+</div>
+<script>
+function runCode() {
+    window.open('https://cuteerratu.github.io/RunCode/', '_blank');
+}
+var conversation = [
+{ 'role': 'system', 'content': 'You are a helpful assistant.' }
+];
+var dialogs = [];
+var currentDialogIndex = -1;
+var apiUrl = 'https://ai.fakeopen.com/v1/chat/completions';
+var apiKey = 'fk-nIYObrFcFoMgZOodN7OGlV7YFjQccLSEvYj9M_JT1e4';
+var defaultModel = 'gpt-3.5-turbo';
+
+function sendMessage() {
+var inputBox = document.getElementById('prompt');
+var userMessage = inputBox.value.trim();
+if (!userMessage) return;
+
+if (currentDialogIndex !== -1) {
+dialogs[currentDialogIndex].conversation.push({ 'role': 'user', 'content': userMessage });
+updateDialogList();
+}
+
+conversation.push({ 'role': 'user', 'content': userMessage });
+updateChatHistory();
+
+inputBox.value = '';
+
+fetch(apiUrl, {
+method: 'POST',
+headers: {
+'Authorization': 'Bearer ' + apiKey,
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({
+'model': defaultModel,
+'messages': conversation
+})
+})
+.then(response => response.json())
+.then(data => {
+var response_text = data.choices[0].message.content;
+conversation.push({ 'role': 'assistant', 'content': response_text });
+updateChatHistory();
+})
+.catch(error => console.error('Error:', error));
+}
+
+function updateChatHistory() {
+var chatHistoryDiv = document.getElementById('chat-history');
+chatHistoryDiv.innerHTML = '';
+
+for (var i = 0; i < conversation.length; i++) {
+var message = conversation[i];
+var messageDiv = document.createElement('div');
+messageDiv.className = message.role === 'user' ? 'chat-bubble user-bubble' : 'chat-bubble assistant-bubble';
+messageDiv.innerText = message.role + ': ' + message.content;
+chatHistoryDiv.appendChild(messageDiv);
+}
+}
+
+var modal = document.getElementById('settings-modal');
+var drawingModal = document.getElementById('drawing-modal');
+var dialogListModal = document.getElementById('dialog-list-modal');
+
+function openSettings() {
+modal.style.display = 'block';
+document.getElementById('apiUrl').value = apiUrl;
+document.getElementById('apiKey').value = apiKey;
+document.getElementById('defaultModel').value = defaultModel;
+}
+
+function closeSettings() {
+modal.style.display = 'none';
+}
+
+function saveSettings() {
+apiUrl = document.getElementById('apiUrl').value;
+apiKey = document.getElementById('apiKey').value;
+defaultModel = document.getElementById('defaultModel').value;
+closeSettings();
+}
+
+function openDrawingPage() {
+drawingModal.style.display = 'block';
+}
+
+function closeDrawingPage() {
+drawingModal.style.display = 'none';
+}
+
+function drawImage() {
+var drawingPrompt = document.getElementById('drawingPrompt').value;
+var drawingResult = document.getElementById('drawingResult');
+drawingResult.innerHTML = `<img src="https://image.pollinations.ai/prompt/${drawingPrompt}" alt="AI绘画" style="max-width: 100%;">`;
+}
+
+function openDialogList() {
+dialogListModal.style.display = 'block';
+updateDialogList();
+}
+
+function closeDialogList() {
+dialogListModal.style.display = 'none';
+}
+
+function updateDialogList() {
+var dialogList = document.getElementById('dialog-list');
+dialogList.innerHTML = '';
+
+for (var i = 0; i < dialogs.length; i++) {
+var dialog = dialogs[i];
+var dialogListItem = document.createElement('li');
+dialogListItem.className = i === currentDialogIndex ? 'dialog-list-item selected' : 'dialog-list-item';
+dialogListItem.textContent = dialog.name || '无标题对话';
+dialogListItem.onclick = function(index) {
+return function() {
+switchDialog(index);
+};
+}(i);
+dialogList.appendChild(dialogListItem);
+}
+}
+
+function addDialog() {
+var dialogName = document.getElementById('dialog-name').value;
+dialogs.push({ name: dialogName, conversation: [] });
+currentDialogIndex = dialogs.length - 1;
+updateDialogList();
+}
+
+function switchDialog(index) {
+currentDialogIndex = index;
+conversation = dialogs[index].conversation.slice();
+updateChatHistory();
+updateDialogList();
+}
+
+</script>
+
+
+</body></html>
