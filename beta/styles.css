@@ -1,0 +1,35 @@
+/* You can remove the custom CSS for chatContainer and chatBox as Bootstrap styling is applied. */
+
+.user-message {
+    float: right;
+    background-color: #90EE90;
+    color: white;
+}
+.message {
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    clear: both;
+    display: inline-block;
+    max-width: 80%;
+}
+.assistant-message {
+    float: left;
+    background-color: #87CEEB;
+}
+
+#statusMessage {
+    text-align: center;
+    margin: 10px 0;
+    background-color: #FFFF00;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#chatContainer {
+    margin: auto auto;
+    display: flex;
+    flex-direction: column;
+    max-height: 500px; /* Maximum height */
+    overflow-y: scroll;
+}
