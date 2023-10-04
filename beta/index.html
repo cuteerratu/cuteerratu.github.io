@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音识别与ChatGPT</title>
+    <!-- Include Bootstrap CSS from a CDN -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <div id="chatContainer" class="mb-3">
+                    <div id="statusMessage"></div>
+                    <div id="chatBox" class="border rounded p-3"></div>
+                </div>
+                <div id="inputContainer" class="mb-3">
+                    <input type="text" id="textInput" class="form-control" placeholder="输入文本...">
+                    <button id="startButton" class="btn btn-primary mr-2">开始识别</button>
+                    <button id="stopButton" class="btn btn-danger" disabled>停止识别</button>
+                    <button id="sendButton" class="btn btn-success float-right" disabled>发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Include Bootstrap JS and jQuery from a CDN -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="script.js" charset="UTF-8"></script>
+</body>
+</html>
