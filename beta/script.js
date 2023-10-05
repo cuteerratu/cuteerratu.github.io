@@ -59,7 +59,6 @@ sendButton.addEventListener('click', function() {
         sendToChatGPT(textMessage); // Send the combined message to ChatGPT
         textInput.value = ''; // Clear the input field
         textMessage = ''; // Clear the text message
-        sendButton.disabled = true; // Disable Send button after sending
     }
 });
 
