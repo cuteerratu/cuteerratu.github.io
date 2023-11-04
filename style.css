@@ -109,6 +109,7 @@ body {
     padding: 20px;
     width: 80%;
     max-width: 600px;
+    overflow-y: auto; /* 启用垂直滚动条，如果内容溢出 */
 }
 
 .responsive-image {
