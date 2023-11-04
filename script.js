@@ -13,11 +13,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const sendButton = document.getElementById("send-button");
 
     const url = "https://ai.fakeopen.com/v1/chat/completions"; // Replace with your actual API URL
-    const key = "fk-nIYObrFcFoMgZOodN7OGlV7YFjQccLSEvYj9M_JT1e4"; // Replace with your actual API key
+    const key = "pk-this-is-a-real-free-pool-token-for-everyone"; // Replace with your actual API key
     const model = "gpt-3.5-turbo"; // Replace with your desired GPT model
 
     const messages = [];
+    // 在页面加载完成后，选择要显示的模态框
+    var jvanzhumodal = document.getElementById("jvanzhu");
 
+    jvanzhumodal.style.display = "flex";
     sendButton.addEventListener("click", sendMessage);
     openMenuButton.addEventListener("click", openMenu);
     closeMenuButton.addEventListener("click", closeMenu);
@@ -25,6 +28,10 @@ document.addEventListener("DOMContentLoaded", function() {
     runCodeButton.addEventListener("click", navigateToRunCode);
     oldButton.addEventListener("click", navigateToold);
     setConfigButton.addEventListener("click", openConfigPopup); // Add this line
+    closejvanzhu.addEventListener("click", closejvanzhuf);
+    function closejvanzhuf() {
+        jvanzhumodal.style.display = "none";
+    }
     function openConfigPopup() {
         configModal.style.display = "flex";
     }
