@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const userInput = document.getElementById("user-input");
     const sendButton = document.getElementById("send-button");
 
-    const url = "https://ai.fakeopen.com/v1/chat/completions"; // Replace with your actual API URL
-    const key = "pk-this-is-a-real-free-pool-token-for-everyone"; // Replace with your actual API key
+    const url = "https://furry.vsftp.cn/v1/chat/completions"; // Replace with your actual API URL
+    const key = "sk-DYyO5mxhiaQ3gH9OD22e9876832940Be8fFf8b2bB19a16Ca"; // Replace with your actual API key
     const model = "gpt-3.5-turbo"; // Replace with your desired GPT model
 
     const messages = [];
