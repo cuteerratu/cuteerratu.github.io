@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const sendButton = document.getElementById("send-button");
 
     const url = "https://uuci.shellten.top/v1/chat/completions/"; // Replace with your actual API URL
-    const key = "sk-sL6Byr7cObkcIOmG7e3a75012877459f8b884bEc899fE03f"; // Replace with your actual API key
+    const key = "sk-vf5QEDldURrNOO2DB831B17262B647B7B13aF9Ae2386E0C8"; // Replace with your actual API key
     const model = "gpt-3.5-turbo"; // Replace with your desired GPT model
 
     const messages = [];
