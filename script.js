@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const url = "https://uuci.shellten.top/v1/chat/completions/"; // Replace with your actual API URL
     const key = "sk-vf5QEDldURrNOO2DB831B17262B647B7B13aF9Ae2386E0C8"; // Replace with your actual API key
-    const model = "gpt-3.5-turbo"; // Replace with your desired GPT model
+    const model = "gpt-4"; // Replace with your desired GPT model
 
     const messages = [];
     // 在页面加载完成后，选择要显示的模态框
