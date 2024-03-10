@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const userInput = document.getElementById("user-input");
     const sendButton = document.getElementById("send-button");
 
-    const url = "https://uuci.shellten.top/v1/chat/completions/"; // Replace with your actual API URL
+    const url = "https://cheerapi.aischat.xyz/v1/chat/completions"; // Replace with your actual API URL
     const key = "sk-vf5QEDldURrNOO2DB831B17262B647B7B13aF9Ae2386E0C8"; // Replace with your actual API key
     const model = "gpt-4"; // Replace with your desired GPT model
 
