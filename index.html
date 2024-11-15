@@ -1,65 +1,752 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="ico1.ico" type="image/x-icon">
-    <title>ChatGPT API</title>
+    <title>智能助手</title>
+    <!-- Prism.js for code highlighting -->
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- KaTeX for LaTeX rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet" />
+    <style>
+        /* Reset and Basic Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1e1e2f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        /* Chat Container */
+        .chat-container {
+            width: 95%;
+            max-width: 1400px;
+            height: 90vh;
+            background: #2e2e3e;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background-color: #3e3e55;
+            padding: 20px;
+            border-right: 1px solid #4e4e6e;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+        .new-chat-button {
+            padding: 10px 15px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+        .new-chat-button:hover {
+            background-color: #357ab8;
+        }
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .chat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #4e4e6e;
+            border: 1px solid #5e5e7e;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+        .chat-item.active {
+            background-color: #6a6a9a;
+        }
+        .chat-item:hover {
+            background-color: #5e5e7e;
+        }
+        .chat-title {
+            flex: 1;
+            color: #ffffff;
+            font-size: 14px;
+            word-break: break-word;
+        }
+        .chat-options {
+            display: none;
+            position: absolute;
+            top: 35px;
+            right: 10px;
+            background-color: #3e3e55;
+            border: 1px solid #5e5e7e;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+        .chat-item:hover .chat-options {
+            display: block;
+        }
+        .options-button {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .options-menu button {
+            width: 100%;
+            padding: 8px 10px;
+            background: none;
+            border: none;
+            text-align: left;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .options-menu button:hover {
+            background-color: #5e5e7e;
+        }
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+            background-color: #1e1e2f;
+            color: #ffffff;
+        }
+        .model-selector-button {
+            padding: 8px 12px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            align-self: flex-end;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+        .model-selector-button:hover {
+            background-color: #357ab8;
+        }
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #2e2e3e;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-break: break-word;
+        }
+        .message.user {
+            background-color: #4a90e2;
+            align-self: flex-end;
+            color: #ffffff;
+        }
+        .message.bot {
+            background-color: #5e5e7e;
+            align-self: flex-start;
+            color: #ffffff;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .input-field {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .send-button {
+            padding: 10px 20px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+        .send-button:hover {
+            background-color: #357ab8;
+        }
+        /* Model Selection Modal */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 300; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.6); 
+        }
+        .modal-content {
+            background-color: #3e3e55;
+            margin: 10% auto; 
+            padding: 20px;
+            border: 1px solid #5e5e7e;
+            width: 90%; 
+            max-width: 400px;
+            border-radius: 8px;
+            color: #ffffff;
+        }
+        .close-modal {
+            color: #ffffff;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-modal:hover,
+        .close-modal:focus {
+            color: #cccccc;
+        }
+        .modal-content h3 {
+            margin-bottom: 15px;
+        }
+        #save-model {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        #save-model:hover {
+            background-color: #357ab8;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -320px;
+                top: 0;
+                height: 100%;
+                transition: left 0.3s;
+                z-index: 200;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+            .toggle-sidebar {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                background-color: #4a90e2;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 10px;
+                cursor: pointer;
+                z-index: 300;
+                display: block;
+                font-size: 18px;
+            }
+            .main-content {
+                padding: 20px 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="chat-container">
-        <div id="chat" class="chat-box">
-            <header class="page-header">
-                <h1>ChatGPT API Demo</h1>
-            </header>
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>聊天记录</h3>
+                <button class="new-chat-button" id="new-chat-button">新的聊天+</button>
+            </div>
+            <div class="chat-list" id="chat-list">
+                <!-- 动态生成聊天记录 -->
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Toggle Sidebar Button for Mobile -->
+            <button class="toggle-sidebar" id="toggle-sidebar" style="display: none;">☰</button>
+            
+            <!-- Model Selector Button -->
+            <button class="model-selector-button" id="model-selector-button">选择模型</button>
+            
+            <!-- Chat History -->
+            <div class="chat-history" id="chat-history">
+                <!-- 聊天消息将在这里显示 -->
+            </div>
+            
+            <!-- Input Area -->
+            <div class="input-area">
+                <input type="text" id="input-field" class="input-field" placeholder="输入您的问题...">
+                <button id="send-button" class="send-button">发送</button>
+            </div>
+        </div>
+    </div>
 
-        </div>
-        <div class="input-box">
-            <input type="text" id="user-input" placeholder="Type your message...">
-            <button id="send-button">Send</button>
-            <button id="open-menu-button">Menu</button>
+    <!-- Model Selection Modal -->
+    <div id="model-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-model-modal">&times;</span>
+            <h3>选择模型</h3>
+            <select id="model-selector" class="model-select" style="width: 100%; padding: 10px; margin-top: 10px; border-radius: 6px; border: none;">
+                <option value="gpt-4o-mini">GPT-4o Mini</option>
+                <option value="claude-3-haiku">Claude 3 Haiku</option>
+            </select>
+            <button id="save-model">保存</button>
         </div>
     </div>
-    <!-- ... Your existing HTML ... -->
 
-    <div id="menu-modal" class="modal">
-        <div class="modal-content">
-            <h2>Menu</h2>
-            <button id="set-config-button">Set Configuration</button>
-            <button id="ai-drawing-button">AI Drawing</button>
-            <button id="run-code-button">Run the Code</button>
-            <button id="old">Back to old</button>
-            <button id="close-menu-button">Close</button>
-        </div>
-    </div>
-    <div id="jvanzhu" class="modal">
-        <div class="modal-content">
-            <h2>自愿捐助</h2>
-            <p>复活的老chat，自愿捐助<p>
-            <img src="收款码.png" alt="收款码图像" class="responsive-image" style="width: 20%;">
-            <p>再次感谢您选择使用我们的 AI 对话网站。</p>
-            <p>感谢您的支持，</p>
-            <p>Shellten AI</p>
-            <button id="closejvanzhu">关闭</button>
-        </div>
-    </div>
-    <div id="config-modal" class="modal">
-    <div class="modal-content">
-        <h2>Set Configuration</h2>
-        <form id="config-form">
-            <label for="api-key">API Key:</label>
-            <input type="text" id="api-key" name="api-key" required><br>
-            <label for="website">Requested Website:</label>
-            <input type="text" id="website" name="website" required><br>
-            <label for="model">Model:</label>
-            <input type="text" id="model" name="model" required><br>
-            <label for="prompt">System Prompt:</label>
-            <input type="text" id="prompt" name="prompt" required><br>
-            <button type="submit">Save</button>
-        </form>
-        </div>
-    </div>
-<script src="script.js"></script>
+    <script>
+        // API Configuration
+        const apiUrl = "https://duck2api.aischat.xyz/v1/chat/completions";
+        const apiKey = "YOUR_API_KEY_HERE"; // ⚠️ Replace with your actual API key securely
+
+        // DOM Elements
+        const inputField = document.getElementById("input-field");
+        const sendButton = document.getElementById("send-button");
+        const chatHistory = document.getElementById("chat-history");
+        const modelSelector = document.getElementById("model-selector");
+        const modelSelectorButton = document.getElementById("model-selector-button");
+        const modelModal = document.getElementById("model-modal");
+        const closeModelModal = document.getElementById("close-model-modal");
+        const saveModelButton = document.getElementById("save-model");
+        const newChatButton = document.getElementById("new-chat-button");
+        const chatList = document.getElementById("chat-list");
+        const toggleSidebar = document.getElementById("toggle-sidebar");
+        const sidebar = document.getElementById("sidebar");
+
+        let currentChatId = null;
+        let chats = {}; // Object to store multiple chats
+
+        // Initialize chats from localStorage
+        function loadChats() {
+            const storedChats = localStorage.getItem('chats');
+            if (storedChats) {
+                chats = JSON.parse(storedChats);
+                for (const chatId in chats) {
+                    addChatToList(chatId, chats[chatId].title);
+                }
+                if (Object.keys(chats).length > 0) {
+                    const firstChatId = Object.keys(chats)[0];
+                    selectChat(firstChatId);
+                } else {
+                    createNewChat();
+                }
+            } else {
+                createNewChat();
+            }
+        }
+
+        // Save chats to localStorage
+        function saveChats() {
+            localStorage.setItem('chats', JSON.stringify(chats));
+        }
+
+        // Add chat to sidebar list
+        function addChatToList(chatId, title) {
+            const chatItem = document.createElement("div");
+            chatItem.classList.add("chat-item");
+            chatItem.dataset.chatId = chatId;
+
+            const titleDiv = document.createElement("div");
+            titleDiv.classList.add("chat-title");
+            titleDiv.textContent = title;
+
+            const optionsButton = document.createElement("button");
+            optionsButton.classList.add("options-button");
+            optionsButton.innerHTML = "⋮";
+
+            const optionsMenu = document.createElement("div");
+            optionsMenu.classList.add("options-menu");
+
+            const renameButton = document.createElement("button");
+            renameButton.textContent = "重命名";
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "删除";
+
+            optionsMenu.appendChild(renameButton);
+            optionsMenu.appendChild(deleteButton);
+            chatItem.appendChild(titleDiv);
+            chatItem.appendChild(optionsButton);
+            chatItem.appendChild(optionsMenu);
+
+            // Event Listeners
+            chatItem.addEventListener("click", (e) => {
+                if (!e.target.matches('.options-button') && !e.target.matches('.options-menu button')) {
+                    selectChat(chatId);
+                    if (window.innerWidth <= 768) {
+                        toggleSidebarVisibility(false);
+                    }
+                }
+            });
+
+            optionsButton.addEventListener("click", (e) => {
+                e.stopPropagation();
+                closeAllOptionsMenus();
+                optionsMenu.style.display = "block";
+            });
+
+            renameButton.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const newTitle = prompt("请输入新的标题:", title);
+                if (newTitle) {
+                    chatItem.querySelector(".chat-title").textContent = newTitle;
+                    chats[chatId].title = newTitle;
+                    saveChats();
+                }
+                optionsMenu.style.display = "none";
+            });
+
+            deleteButton.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (confirm("确定要删除这个对话吗？")) {
+                    delete chats[chatId];
+                    saveChats();
+                    chatList.removeChild(chatItem);
+                    if (currentChatId === chatId) {
+                        currentChatId = null;
+                        chatHistory.innerHTML = "";
+                        if (Object.keys(chats).length > 0) {
+                            selectChat(Object.keys(chats)[0]);
+                        } else {
+                            createNewChat();
+                        }
+                    }
+                }
+            });
+
+            document.addEventListener("click", () => {
+                optionsMenu.style.display = "none";
+            });
+
+            chatList.appendChild(chatItem);
+        }
+
+        // Close all options menus
+        function closeAllOptionsMenus() {
+            const menus = document.querySelectorAll(".options-menu");
+            menus.forEach(menu => menu.style.display = "none");
+        }
+
+        // Select a chat
+        function selectChat(chatId) {
+            currentChatId = chatId;
+            document.querySelectorAll(".chat-item").forEach(item => {
+                if (item.dataset.chatId === chatId) {
+                    item.classList.add("active");
+                } else {
+                    item.classList.remove("active");
+                }
+            });
+            renderChatHistory();
+        }
+
+        // Render chat history
+        function renderChatHistory() {
+            chatHistory.innerHTML = "";
+            if (!currentChatId || !chats[currentChatId]) return;
+            const messages = chats[currentChatId].messages;
+            messages.forEach(msg => {
+                updateChatHistory(msg.content, msg.role === "user");
+            });
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // Create a new chat
+        function createNewChat() {
+            const chatId = 'chat-' + Date.now();
+            chats[chatId] = { title: "新的对话", messages: [], model: "gpt-4o-mini" };
+            addChatToList(chatId, "新的对话");
+            saveChats();
+            selectChat(chatId);
+            // Title generation will be triggered after first AI response
+        }
+
+        // Update chat history UI
+        function updateChatHistory(message, isUser = true) {
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message", isUser ? "user" : "bot");
+
+            if (isUser) {
+                messageElement.textContent = message;
+            } else {
+                messageElement.innerHTML = renderMessage(message);
+            }
+
+            chatHistory.appendChild(messageElement);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // Render Markdown and LaTeX
+        function renderMessage(message) {
+            let htmlContent = marked.parse(message);
+            htmlContent = htmlContent.replace(/\$\$(.*?)\$\$/g, (match, tex) => {
+                try {
+                    return katex.renderToString(tex, { throwOnError: false });
+                } catch (err) {
+                    return match;
+                }
+            });
+            Prism.highlightAllUnder(chatHistory);
+            return htmlContent;
+        }
+
+        // Send Message
+        async function sendMessage(message) {
+            if (!currentChatId) return;
+            updateChatHistory(message, true);
+            chats[currentChatId].messages.push({ role: "user", content: message });
+            saveChats();
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: chats[currentChatId].model || "gpt-4o-mini",
+                        stream: true,
+                        messages: chats[currentChatId].messages
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error("API request failed");
+                }
+                
+                const botMessageElement = document.createElement("div");
+                botMessageElement.classList.add("message", "bot");
+                chatHistory.appendChild(botMessageElement);
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullResponse = "";
+                let isFirstBotResponse = chats[currentChatId].messages.length === 1;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const jsonData = JSON.parse(line.slice(6));
+                                if (jsonData.choices && jsonData.choices[0].delta && jsonData.choices[0].delta.content) {
+                                    const content = jsonData.choices[0].delta.content;
+                                    fullResponse += content;
+                                    botMessageElement.innerHTML = renderMessage(fullResponse);
+                                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                                }
+                            } catch (e) {
+                                console.error("Parse error:", e);
+                            }
+                        }
+                    }
+                }
+
+                chats[currentChatId].messages.push({ role: "assistant", content: fullResponse });
+                saveChats();
+
+                // After the first assistant response, generate the chat title
+                if (isFirstBotResponse) {
+                    await generateChatTitle(currentChatId);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                updateChatHistory("抱歉，出现错误。请重试。", false);
+            }
+        }
+
+        // Generate Chat Title using AI
+        async function generateChatTitle(chatId) {
+            if (!chats[chatId] || chats[chatId].messages.length < 2) {
+                chats[chatId].title = "闲聊";
+                updateChatTitle(chatId, "闲聊");
+                saveChats();
+                return;
+            }
+
+            // Construct the title generation payload
+            const titleRequestPayload = {
+                model: "gpt-4o-mini",
+                stream: false,
+                messages: chats[chatId].messages.slice(0, -1), // Exclude the last user prompt for title generation
+                temperature: 0.5,
+                presence_penalty: 0,
+                frequency_penalty: 0,
+                top_p: 1,
+                max_tokens: 4000
+            };
+
+            // Append the specific user prompt for title generation
+            titleRequestPayload.messages.push({
+                role: "user",
+                content: "使用四到五个字直接返回这句话的简要主题，不要解释、不要标点、不要语气词、不要多余文本，不要加粗，如果没有主题，请直接返回“闲聊”"
+            });
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(titleRequestPayload)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Title generation API request failed");
+                }
+
+                const data = await response.json();
+                const title = data.choices && data.choices[0].message && data.choices[0].message.content.trim();
+                if (title) {
+                    chats[chatId].title = title;
+                } else {
+                    chats[chatId].title = "闲聊";
+                }
+                updateChatTitle(chatId, chats[chatId].title);
+                saveChats();
+            } catch (error) {
+                console.error("Title Generation Error:", error);
+                chats[chatId].title = "闲聊";
+                updateChatTitle(chatId, "闲聊");
+                saveChats();
+            }
+        }
+
+        // Update chat title in the sidebar
+        function updateChatTitle(chatId, newTitle) {
+            const chatItem = document.querySelector(`.chat-item[data-chat-id="${chatId}"] .chat-title`);
+            if (chatItem) {
+                chatItem.textContent = newTitle;
+            }
+        }
+
+        // Event Listeners
+        sendButton.addEventListener("click", () => {
+            const message = inputField.value.trim();
+            if (message) {
+                sendMessage(message);
+                inputField.value = "";
+            }
+        });
+
+        inputField.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                sendButton.click();
+            }
+        });
+
+        // Model Selector Modal
+        modelSelectorButton.addEventListener("click", () => {
+            modelModal.style.display = "block";
+        });
+
+        closeModelModal.addEventListener("click", () => {
+            modelModal.style.display = "none";
+        });
+
+        window.addEventListener("click", (event) => {
+            if (event.target == modelModal) {
+                modelModal.style.display = "none";
+            }
+        });
+
+        saveModelButton.addEventListener("click", () => {
+            const selectedModel = modelSelector.value;
+            if (currentChatId && chats[currentChatId]) {
+                chats[currentChatId].model = selectedModel;
+                saveChats();
+            }
+            modelModal.style.display = "none";
+        });
+
+        // New Chat Button
+        newChatButton.addEventListener("click", () => {
+            createNewChat();
+        });
+
+        // Toggle Sidebar for Mobile
+        function toggleSidebarVisibility(show) {
+            if (show === undefined) {
+                sidebar.classList.toggle("show");
+            } else {
+                if (show) {
+                    sidebar.classList.add("show");
+                } else {
+                    sidebar.classList.remove("show");
+                }
+            }
+        }
+
+        toggleSidebar.addEventListener("click", () => {
+            toggleSidebarVisibility();
+        });
+
+        // Show toggle button on mobile
+        function handleResize() {
+            if (window.innerWidth <= 768) {
+                toggleSidebar.style.display = "block";
+                sidebar.classList.remove("show");
+            } else {
+                toggleSidebar.style.display = "none";
+                sidebar.classList.remove("show");
+            }
+        }
+
+        window.addEventListener("resize", handleResize);
+        handleResize();
+
+        // Initialize
+        loadChats();
+    </script>
 </body>
 </html>
