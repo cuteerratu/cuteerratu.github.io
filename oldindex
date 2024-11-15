@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="ico1.ico" type="image/x-icon">
+    <title>ChatGPT API</title>
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chat" class="chat-box">
+            <header class="page-header">
+                <h1>ChatGPT API Demo</h1>
+            </header>
+
+        </div>
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+            <button id="open-menu-button">Menu</button>
+        </div>
+    </div>
+    <!-- ... Your existing HTML ... -->
+
+    <div id="menu-modal" class="modal">
+        <div class="modal-content">
+            <h2>Menu</h2>
+            <button id="set-config-button">Set Configuration</button>
+            <button id="ai-drawing-button">AI Drawing</button>
+            <button id="run-code-button">Run the Code</button>
+            <button id="old">Back to old</button>
+            <button id="close-menu-button">Close</button>
+        </div>
+    </div>
+    <div id="jvanzhu" class="modal">
+        <div class="modal-content">
+            <h2>自愿捐助</h2>
+            <p>复活的老chat，自愿捐助<p>
+            <img src="收款码.png" alt="收款码图像" class="responsive-image" style="width: 20%;">
+            <p>再次感谢您选择使用我们的 AI 对话网站。</p>
+            <p>感谢您的支持，</p>
+            <p>Shellten AI</p>
+            <button id="closejvanzhu">关闭</button>
+        </div>
+    </div>
+    <div id="config-modal" class="modal">
+    <div class="modal-content">
+        <h2>Set Configuration</h2>
+        <form id="config-form">
+            <label for="api-key">API Key:</label>
+            <input type="text" id="api-key" name="api-key" required><br>
+            <label for="website">Requested Website:</label>
+            <input type="text" id="website" name="website" required><br>
+            <label for="model">Model:</label>
+            <input type="text" id="model" name="model" required><br>
+            <label for="prompt">System Prompt:</label>
+            <input type="text" id="prompt" name="prompt" required><br>
+            <button type="submit">Save</button>
+        </form>
+        </div>
+    </div>
+<script src="script.js"></script>
+</body>
+</html>
